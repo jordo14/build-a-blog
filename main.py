@@ -62,14 +62,25 @@ class NewPosts(Handler):
             b = Blog(title = title, post = post)
             b.put()
 
-            self.redirect("/blog")
+            self.redirect("/blog/%s" % b.key().id())
         else: 
             error = "We need both a title and a post!"
             self.render_front(title, post, error)
 
+class ViewPostHandler(Handler): 
+    def render_front(self, id, title="", post="", error=""):
+        id = int(id)
+        posts = Blog.get_by_id(id)
+        self.render("onepost.html", title=title, post=post, posts=posts)
+
+    def get(self, id):
+        self.render_front(id)
+        
+            
     
 
 app = webapp2.WSGIApplication([
     ('/blog', MainHandler),
     ('/newpost', NewPosts),
+    webapp2.Route('/blog/<id:\d+>', ViewPostHandler)
 ], debug=True)
